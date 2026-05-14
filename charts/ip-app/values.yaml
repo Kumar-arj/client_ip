@@ -1,0 +1,76 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/YOUR_GITHUB_USERNAME/bigid-devops-assignment
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ip-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 30
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Environment variables - non-secret config
+env: {}
+
+# How to pass secrets:
+# 1. Create k8s Secret: kubectl create secret generic app-secrets --from-literal=KEY=VALUE
+# 2. Mount via envFrom or volumeMounts in deployment template
+# 3. Or use sealed-secrets, external-secrets, etc.
+secrets:
+  enabled: false
+  name: app-secrets
