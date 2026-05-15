@@ -201,9 +201,17 @@ jobs:
             --set image.repository=${IMAGE} \
             --set image.tag=${{ github.sha }} \
             --set image.pullPolicy=Never \
-            --wait \
-            --timeout 5m
-      
+            --set replicaCount=1 
+            # --wait \
+            # --timeout 10m
+
+      - name: Debug pod status on failure
+        if: failure()
+        run: |
+          kubectl get pods -n staging -o wide
+          kubectl describe pods -n staging
+          kubectl logs -n staging -l app.kubernetes.io/name=ip-app --tail=100 || true
+
       - name: Wait for deployment
         run: |
           kubectl rollout status deployment/ip-app -n staging --timeout=5m
