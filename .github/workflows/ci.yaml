@@ -111,11 +111,16 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Set lowercase image ref
+        id: image_ref
+        run: |
+          echo "value=$(echo '${{ env.REGISTRY }}/${{ github.repository }}' | tr '[:upper:]' '[:lower:]')@${{ needs.build.outputs.digest }}" >> $GITHUB_OUTPUT
+
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}@${{ needs.build.outputs.digest }}
+          image-ref: ${{ steps.image_ref.outputs.value }}
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
