@@ -194,10 +194,11 @@ jobs:
 
       - name: Deploy with Helm
         run: |
+          IMAGE=$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           helm upgrade --install ip-app charts/ip-app/ \
             --namespace staging \
             --values charts/ip-app/values.yaml \
-            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
+            --set image.repository=${IMAGE} \
             --set image.tag=${{ github.sha }} \
             --set image.pullPolicy=Never \
             --wait \
