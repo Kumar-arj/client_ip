@@ -177,12 +177,12 @@ jobs:
       
       - name: Deploy with Helm
         run: |
-          helm upgrade --install ip-app charts/ip-app/ \\
-            --namespace staging \\
-            --values charts/ip-app/values.yaml \\
-            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \\
-            --set image.tag=${{ github.sha }} \\
-            --wait \\
+          helm upgrade --install ip-app charts/ip-app/ \
+            --namespace staging \
+            --values charts/ip-app/values.yaml \
+            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
+            --set image.tag=${{ github.sha }} \
+            --wait \
             --timeout 5m
       
       - name: Wait for deployment
