@@ -4,19 +4,17 @@ FROM python:3.12-slim as builder
 WORKDIR /app
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Stage 2: Runtime
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Copy only Python packages from builder
-COPY --from=builder /root/.local /root/.local
+# Copy installed packages from builder into system-wide location
+COPY --from=builder /install /usr/local
 
-# Set PATH to include user site-packages
-ENV PATH=/root/.local/bin:$PATH \
-    PYTHONUNBUFFERED=1 \
+ENV PYTHONUNBUFFERED=1 \
     PORT=8080
 
 # Copy app code
