@@ -201,9 +201,9 @@ jobs:
             --set image.repository=${IMAGE} \
             --set image.tag=${{ github.sha }} \
             --set image.pullPolicy=Never \
-            --set replicaCount=1 
-            # --wait \
-            # --timeout 10m
+            --set replicaCount=1 \
+            --wait \
+            --timeout 5m
 
       - name: Debug pod status on failure
         if: failure()
