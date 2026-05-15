@@ -158,23 +158,39 @@ jobs:
     runs-on: ubuntu-latest
     needs: [helm-lint, scan]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
           version: '3.12.0'
-      
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.7.0
         with:
           cluster_name: staging
-      
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull and load image into kind
+        run: |
+          IMAGE=$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker pull "${IMAGE}:${{ github.sha }}"
+          kind load docker-image "${IMAGE}:${{ github.sha }}" --name staging
+
       - name: Create staging namespace
         run: |
           kubectl create namespace staging || true
-      
+
       - name: Deploy with Helm
         run: |
           helm upgrade --install ip-app charts/ip-app/ \
@@ -182,6 +198,7 @@ jobs:
             --values charts/ip-app/values.yaml \
             --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
             --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=Never \
             --wait \
             --timeout 5m
       
