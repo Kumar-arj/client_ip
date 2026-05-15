@@ -141,7 +141,7 @@ jobs:
   helm-lint:
     name: Helm Lint
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, scan]
     steps:
       - uses: actions/checkout@v4
       
