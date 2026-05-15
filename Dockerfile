@@ -15,15 +15,15 @@ WORKDIR /app
 COPY --from=builder /root/.local /root/.local
 
 # Set PATH to include user site-packages
-ENV PATH=/root/.local/bin:$PATH \\
-    PYTHONUNBUFFERED=1 \\
+ENV PATH=/root/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
     PORT=8080
 
 # Copy app code
 COPY app/ ./app/
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"
 
 # Non-root user for security
