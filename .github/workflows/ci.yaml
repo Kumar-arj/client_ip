@@ -216,31 +216,38 @@ jobs:
         run: |
           kubectl rollout status deployment/ip-app -n staging --timeout=5m
 
+      - name: Smoke tests
+        run: |
+          kubectl port-forward svc/ip-app 8080:80 -n staging &
+          PF_PID=$!
+          trap "kill $PF_PID 2>/dev/null" EXIT
+
+          # Wait until port is accepting connections (up to 30s)
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/health > /dev/null && break
+            echo "Waiting for port-forward... ($i/30)"
+            sleep 1
+          done
+
+          echo "Testing /health endpoint..."
+          curl -sf http://localhost:8080/health || exit 1
+
+          echo "Testing /ready endpoint..."
+          curl -sf http://localhost:8080/ready || exit 1
+
+          echo "Testing / endpoint..."
+          curl -sf http://localhost:8080/ || exit 1
+
+          echo "All smoke tests passed!"
+
   smoke-test:
     name: Smoke Tests
     runs-on: ubuntu-latest
     needs: deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Port forward and test
-        run: |
-          # Port forward in background
-          kubectl port-forward svc/ip-app 8080:80 -n staging &
-          sleep 2
-          
-          # Run smoke tests
-          echo "Testing /health endpoint..."
-          curl -f http://localhost:8080/health || exit 1
-          
-          echo "Testing /ready endpoint..."
-          curl -f http://localhost:8080/ready || exit 1
-          
-          echo "Testing / endpoint..."
-          curl -f http://localhost:8080/ || exit 1
-          
-          echo "✅ All smoke tests passed!"
+      - name: Smoke tests run in deploy job
+        run: echo "Smoke tests were executed in the deploy job alongside the kind cluster."
 
   notify:
     name: Notify on Result
