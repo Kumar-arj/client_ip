@@ -251,10 +251,10 @@ jobs:
       - name: Determine status
         id: status
         run: |
-          if [[ "${{ needs.lint.result }}" == "failure" ]] || \\
-             [[ "${{ needs.test.result }}" == "failure" ]] || \\
-             [[ "${{ needs.build.result }}" == "failure" ]] || \\
-             [[ "${{ needs.scan.result }}" == "failure" ]] || \\
+          if [[ "${{ needs.lint.result }}" == "failure" ]] || \
+             [[ "${{ needs.test.result }}" == "failure" ]] || \
+             [[ "${{ needs.build.result }}" == "failure" ]] || \
+             [[ "${{ needs.scan.result }}" == "failure" ]] || \
              [[ "${{ needs.helm-lint.result }}" == "failure" ]]; then
             echo "status=failure" >> $GITHUB_OUTPUT
             echo "emoji=❌" >> $GITHUB_OUTPUT
