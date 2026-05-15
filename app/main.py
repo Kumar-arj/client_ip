@@ -4,6 +4,7 @@ import os
 
 app = FastAPI(title="IP Echo App")
 
+
 @app.get("/")
 async def get_ip(request: Request):
     """Return the client's originating IP address"""
@@ -13,13 +14,15 @@ async def get_ip(request: Request):
         ip = x_forwarded_for.split(",")[0].strip()
     else:
         ip = request.client.host if request.client else "unknown"
-    
+
     return JSONResponse({"ip": ip})
+
 
 @app.get("/health")
 async def health():
     """Liveness probe"""
     return JSONResponse({"status": "ok"})
+
 
 @app.get("/ready")
 async def ready():
