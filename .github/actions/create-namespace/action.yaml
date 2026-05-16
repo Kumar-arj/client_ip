@@ -1,0 +1,15 @@
+name: Create Namespace
+description: Create a Kubernetes namespace, ignoring already-exists errors
+
+inputs:
+  namespace:
+    description: Namespace to create
+    required: true
+    default: staging
+
+runs:
+  using: composite
+  steps:
+    - name: Create namespace
+      shell: bash
+      run: kubectl create namespace ${{ inputs.namespace }} || true

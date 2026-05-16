@@ -1,0 +1,13 @@
+name: Test Python
+description: Install dependencies and run pytest with coverage
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: pip install -r requirements.txt
+
+    - name: Run pytest
+      shell: bash
+      run: pytest tests/ -v --tb=short --cov=app --cov-report=xml

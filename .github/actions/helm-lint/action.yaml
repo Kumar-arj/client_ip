@@ -1,0 +1,9 @@
+name: Helm Lint
+description: Run helm lint --strict on the ip-app chart
+
+runs:
+  using: composite
+  steps:
+    - name: Run helm lint
+      shell: bash
+      run: helm lint charts/ip-app/ --strict

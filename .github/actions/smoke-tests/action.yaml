@@ -1,0 +1,47 @@
+name: Smoke Tests
+description: Port-forward the service and verify health, ready and root endpoints
+
+inputs:
+  namespace:
+    description: Kubernetes namespace
+    required: true
+    default: staging
+  service:
+    description: Service name to port-forward
+    required: true
+    default: ip-app
+  local-port:
+    description: Local port to forward to
+    required: false
+    default: "8080"
+  service-port:
+    description: Service port to forward from
+    required: false
+    default: "80"
+
+runs:
+  using: composite
+  steps:
+    - name: Run smoke tests
+      shell: bash
+      run: |
+        kubectl port-forward svc/${{ inputs.service }} ${{ inputs.local-port }}:${{ inputs.service-port }} -n ${{ inputs.namespace }} &
+        PF_PID=$!
+        trap "kill $PF_PID 2>/dev/null" EXIT
+
+        for i in $(seq 1 30); do
+          curl -sf http://localhost:${{ inputs.local-port }}/health > /dev/null && break
+          echo "Waiting for port-forward... ($i/30)"
+          sleep 1
+        done
+
+        echo "Testing /health endpoint..."
+        curl -sf http://localhost:${{ inputs.local-port }}/health || exit 1
+
+        echo "Testing /ready endpoint..."
+        curl -sf http://localhost:${{ inputs.local-port }}/ready || exit 1
+
+        echo "Testing / endpoint..."
+        curl -sf http://localhost:${{ inputs.local-port }}/ || exit 1
+
+        echo "All smoke tests passed!"

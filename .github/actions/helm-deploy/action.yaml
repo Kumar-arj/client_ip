@@ -1,0 +1,34 @@
+name: Helm Deploy
+description: Deploy or upgrade the ip-app Helm release into a namespace
+
+inputs:
+  registry:
+    description: Container registry hostname
+    required: true
+  repository:
+    description: GitHub repository (owner/name)
+    required: true
+  tag:
+    description: Image tag to deploy
+    required: true
+  namespace:
+    description: Kubernetes namespace
+    required: true
+    default: staging
+
+runs:
+  using: composite
+  steps:
+    - name: Helm upgrade --install
+      shell: bash
+      run: |
+        IMAGE=$(echo "${{ inputs.registry }}/${{ inputs.repository }}" | tr '[:upper:]' '[:lower:]')
+        helm upgrade --install ip-app charts/ip-app/ \
+          --namespace ${{ inputs.namespace }} \
+          --values charts/ip-app/values.yaml \
+          --set image.repository=${IMAGE} \
+          --set image.tag=${{ inputs.tag }} \
+          --set image.pullPolicy=Never \
+          --set replicaCount=1 \
+          --wait \
+          --timeout 5m

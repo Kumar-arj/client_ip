@@ -1,0 +1,27 @@
+name: Load Image into Kind
+description: Pull image from registry and load it into a kind cluster node
+
+inputs:
+  registry:
+    description: Container registry hostname
+    required: true
+  repository:
+    description: GitHub repository (owner/name)
+    required: true
+  tag:
+    description: Image tag to pull and load
+    required: true
+  cluster-name:
+    description: Name of the kind cluster
+    required: true
+    default: staging
+
+runs:
+  using: composite
+  steps:
+    - name: Pull and load image
+      shell: bash
+      run: |
+        IMAGE=$(echo "${{ inputs.registry }}/${{ inputs.repository }}" | tr '[:upper:]' '[:lower:]')
+        docker pull "${IMAGE}:${{ inputs.tag }}"
+        kind load docker-image "${IMAGE}:${{ inputs.tag }}" --name ${{ inputs.cluster-name }}
