@@ -1,8 +1,8 @@
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
 
 def test_root_endpoint():
     """Test / endpoint returns IP"""
@@ -11,11 +11,13 @@ def test_root_endpoint():
     assert "ip" in response.json()
     assert response.json()["ip"] != ""
 
+
 def test_health_endpoint():
     """Test /health endpoint"""
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
 
 def test_ready_endpoint():
     """Test /ready endpoint"""
@@ -23,11 +25,13 @@ def test_ready_endpoint():
     assert response.status_code == 200
     assert response.json()["status"] == "ready"
 
+
 def test_ip_with_x_forwarded_for():
     """Test X-Forwarded-For header handling"""
     response = client.get("/", headers={"x-forwarded-for": "192.168.1.100"})
     assert response.status_code == 200
     assert response.json()["ip"] == "192.168.1.100"
+
 
 def test_ip_with_multiple_x_forwarded_for():
     """Test X-Forwarded-For with multiple IPs (takes first)"""
