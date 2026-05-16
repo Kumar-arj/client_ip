@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/YOUR_GITHUB_USERNAME/bigid-devops-assignment
+  repository: ghcr.io/kumar-arj/client_ip
   pullPolicy: IfNotPresent
   tag: "latest"
 

@@ -198,7 +198,7 @@ jobs:
           helm upgrade --install ip-app charts/ip-app/ \
             --namespace staging \
             --values charts/ip-app/values.yaml \
-            --set image.repository=${IMAGE} \
+            # --set image.repository=${IMAGE} \
             --set image.tag=${{ github.sha }} \
             --set image.pullPolicy=Never \
             --set replicaCount=1 \
