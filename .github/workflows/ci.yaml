@@ -211,15 +211,6 @@ jobs:
           namespace: staging
           service: ip-app
 
-  smoke-test:
-    name: Smoke Tests
-    runs-on: ubuntu-latest
-    needs: deploy
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Smoke tests run in deploy job
-        run: echo "Smoke tests were executed in the deploy job alongside the kind cluster."
-
   notify:
     name: Notify on Result
     runs-on: ubuntu-latest
