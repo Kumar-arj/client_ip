@@ -1,0 +1,9 @@
+name: Scan Report
+description: Print completion message after Trivy scan
+
+runs:
+  using: composite
+  steps:
+    - name: Report scan completion
+      shell: bash
+      run: echo "Image scan completed. Check Security tab for details."

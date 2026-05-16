@@ -1,0 +1,27 @@
+name: Set Lowercase Image Ref
+description: Outputs a fully-qualified lowercase image reference with digest
+
+inputs:
+  registry:
+    description: Container registry hostname
+    required: true
+  repository:
+    description: GitHub repository (owner/name)
+    required: true
+  digest:
+    description: Image digest (sha256:...)
+    required: true
+
+outputs:
+  value:
+    description: Lowercase image ref with digest
+    value: ${{ steps.set.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build lowercase image ref
+      id: set
+      shell: bash
+      run: |
+        echo "value=$(echo '${{ inputs.registry }}/${{ inputs.repository }}' | tr '[:upper:]' '[:lower:]')@${{ inputs.digest }}" >> $GITHUB_OUTPUT

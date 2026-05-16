@@ -1,0 +1,23 @@
+name: Wait Rollout
+description: Wait for a Kubernetes deployment rollout to complete
+
+inputs:
+  deployment:
+    description: Deployment name
+    required: true
+    default: ip-app
+  namespace:
+    description: Kubernetes namespace
+    required: true
+    default: staging
+  timeout:
+    description: kubectl rollout status timeout
+    required: false
+    default: 5m
+
+runs:
+  using: composite
+  steps:
+    - name: Wait for rollout
+      shell: bash
+      run: kubectl rollout status deployment/${{ inputs.deployment }} -n ${{ inputs.namespace }} --timeout=${{ inputs.timeout }}

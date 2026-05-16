@@ -1,0 +1,13 @@
+name: Lint Python
+description: Install flake8 and lint app/ and tests/
+
+runs:
+  using: composite
+  steps:
+    - name: Install linting tools
+      shell: bash
+      run: pip install flake8
+
+    - name: Run flake8
+      shell: bash
+      run: flake8 app/ tests/ --max-line-length=120 --count --show-source --statistics

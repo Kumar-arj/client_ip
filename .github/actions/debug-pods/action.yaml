@@ -1,0 +1,23 @@
+name: Debug Pods
+description: Print pod status, describe output and logs for a namespace
+
+inputs:
+  namespace:
+    description: Kubernetes namespace to debug
+    required: true
+    default: staging
+
+runs:
+  using: composite
+  steps:
+    - name: Get pods
+      shell: bash
+      run: kubectl get pods -n ${{ inputs.namespace }} -o wide
+
+    - name: Describe pods
+      shell: bash
+      run: kubectl describe pods -n ${{ inputs.namespace }}
+
+    - name: Pod logs
+      shell: bash
+      run: kubectl logs -n ${{ inputs.namespace }} -l app.kubernetes.io/name=ip-app --tail=100 || true

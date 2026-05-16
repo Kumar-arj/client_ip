@@ -1,0 +1,51 @@
+name: Notify Status
+description: Determine pipeline status and print a summary
+
+inputs:
+  lint-result:
+    description: Result of the lint job
+    required: true
+  test-result:
+    description: Result of the test job
+    required: true
+  build-result:
+    description: Result of the build job
+    required: true
+  scan-result:
+    description: Result of the scan job
+    required: true
+  helm-lint-result:
+    description: Result of the helm-lint job
+    required: true
+  sha:
+    description: Commit SHA
+    required: true
+  ref-name:
+    description: Branch or tag name
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Determine status
+      id: status
+      shell: bash
+      run: |
+        if [[ "${{ inputs.lint-result }}" == "failure" ]] || \
+           [[ "${{ inputs.test-result }}" == "failure" ]] || \
+           [[ "${{ inputs.build-result }}" == "failure" ]] || \
+           [[ "${{ inputs.scan-result }}" == "failure" ]] || \
+           [[ "${{ inputs.helm-lint-result }}" == "failure" ]]; then
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "emoji=❌" >> $GITHUB_OUTPUT
+        else
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "emoji=✅" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Print summary
+      shell: bash
+      run: |
+        echo "${{ steps.status.outputs.emoji }} CI Pipeline: ${{ steps.status.outputs.status }}"
+        echo "Commit: ${{ inputs.sha }}"
+        echo "Branch: ${{ inputs.ref-name }}"
